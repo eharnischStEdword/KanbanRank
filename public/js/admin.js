@@ -157,6 +157,24 @@ const admin = {
     }
   },
 
+  async clearAll() {
+    if (!confirm('Delete ALL respondents, responses, and AI results? This cannot be undone.')) return;
+    if (!confirm('Are you sure? This will wipe everything.')) return;
+    try {
+      const res = await fetch('/admin/clear-all', { method: 'POST' });
+      const data = await res.json();
+      if (data.ok) {
+        const detail = document.getElementById('admin-detail');
+        detail.textContent = 'All entries cleared.';
+        this.loadDashboard();
+      } else {
+        alert('Failed to clear.');
+      }
+    } catch (err) {
+      alert('Failed to clear.');
+    }
+  },
+
   esc(str) {
     if (!str) return '';
     const d = document.createElement('div');

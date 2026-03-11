@@ -137,4 +137,18 @@ router.get('/respondents', (req, res) => {
   res.json(respondents);
 });
 
+// Clear all entries
+router.post('/clear-all', (req, res) => {
+  const db = getDb();
+  try {
+    db.prepare('DELETE FROM ai_results').run();
+    db.prepare('DELETE FROM responses').run();
+    db.prepare('DELETE FROM respondents').run();
+    res.json({ ok: true });
+  } catch (err) {
+    console.error('Clear all error:', err);
+    res.status(500).json({ error: 'Failed to clear.' });
+  }
+});
+
 module.exports = router;

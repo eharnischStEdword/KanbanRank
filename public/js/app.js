@@ -102,6 +102,29 @@ const app = {
         };
         card.appendChild(textarea);
 
+        const idk = document.createElement('label');
+        idk.className = 'idk-label';
+        const cb = document.createElement('input');
+        cb.type = 'checkbox';
+        cb.className = 'idk-checkbox';
+        if (saved.idk) {
+          cb.checked = true;
+          textarea.disabled = true;
+          textarea.classList.add('disabled');
+        }
+        cb.onchange = () => {
+          if (!this.answers[item.id]) this.answers[item.id] = {};
+          this.answers[item.id].idk = cb.checked;
+          textarea.disabled = cb.checked;
+          textarea.classList.toggle('disabled', cb.checked);
+        };
+        idk.appendChild(cb);
+        const idkText = document.createElement('span');
+        idkText.className = 'idk-text';
+        idkText.textContent = "I don\u2019t know, or I don\u2019t know enough about this to give a response";
+        idk.appendChild(idkText);
+        card.appendChild(idk);
+
         container.appendChild(card);
       });
     }
@@ -136,11 +159,15 @@ const app = {
 
     this.showScreen('submitting');
 
-    const responses = this.items.map(item => ({
-      itemId: item.id,
-      importance: this.answers[item.id].importance,
-      definitionOfDone: (this.answers[item.id].definitionOfDone || '').trim()
-    }));
+    const responses = this.items.map(item => {
+      const answer = this.answers[item.id];
+      return {
+        itemId: item.id,
+        importance: answer.importance,
+        definitionOfDone: answer.idk ? null : (answer.definitionOfDone || '').trim(),
+        idk: answer.idk || false
+      };
+    });
 
     const name = document.getElementById('respondent-name').value.trim();
 
