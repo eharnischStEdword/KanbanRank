@@ -22,13 +22,17 @@ router.post('/respondents', (req, res) => {
 // Submit all responses
 router.post('/responses/:respondentId', (req, res) => {
   const { respondentId } = req.params;
-  const { responses } = req.body;
+  const { responses, name } = req.body;
   if (!responses || !Array.isArray(responses)) {
     return res.status(400).json({ error: 'responses array required' });
   }
   const db = getDb();
   const respondent = db.prepare('SELECT id FROM respondents WHERE id = ?').get(respondentId);
   if (!respondent) return res.status(404).json({ error: 'Respondent not found' });
+
+  if (name) {
+    db.prepare('UPDATE respondents SET name = ? WHERE id = ?').run(name, respondentId);
+  }
 
   const upsert = db.prepare(
     `INSERT INTO responses (respondent_id, item_id, importance, definition_of_done)

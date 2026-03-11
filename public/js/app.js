@@ -10,12 +10,11 @@ const app = {
   },
 
   async startSurvey() {
-    const name = document.getElementById('respondent-name').value.trim();
     try {
       const res = await fetch('/api/respondents', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ name: name || null })
+        body: JSON.stringify({ name: null })
       });
       const data = await res.json();
       this.respondentId = data.id;
@@ -143,11 +142,13 @@ const app = {
       definitionOfDone: (this.answers[item.id].definitionOfDone || '').trim()
     }));
 
+    const name = document.getElementById('respondent-name').value.trim();
+
     try {
       await fetch('/api/responses/' + this.respondentId, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ responses })
+        body: JSON.stringify({ responses, name: name || null })
       });
       this.showScreen('done');
     } catch (err) {
