@@ -1,0 +1,17 @@
+services:
+  - type: web
+    name: kanban-rank
+    runtime: node
+    buildCommand: npm install
+    startCommand: npm start
+    envVars:
+      - key: ANTHROPIC_API_KEY
+        sync: false
+      - key: NODE_ENV
+        value: production
+      - key: DB_PATH
+        value: /opt/render/project/data/kanban.db
+    disk:
+      name: kanban-data
+      mountPath: /opt/render/project/data
+      sizeGB: 1

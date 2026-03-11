@@ -1,0 +1,20 @@
+{
+  "name": "kanban-rank",
+  "version": "1.0.0",
+  "description": "Team kanban item ranking and Definition of Done survey tool",
+  "main": "src/server.js",
+  "scripts": {
+    "start": "node src/server.js",
+    "dev": "node --watch src/server.js"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "dependencies": {
+    "express": "^4.18.2",
+    "better-sqlite3": "^11.0.0",
+    "@anthropic-ai/sdk": "^0.39.0",
+    "dotenv": "^16.4.5",
+    "uuid": "^9.0.1"
+  }
+}
