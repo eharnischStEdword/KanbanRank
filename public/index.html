@@ -30,6 +30,18 @@
       </div>
       <div id="items-container"></div>
       <div class="submit-section">
+        <button class="btn btn-primary btn-large" onclick="app.showReview()">Review My Responses</button>
+      </div>
+    </div>
+
+    <div id="screen-review" class="screen">
+      <div class="review-header">
+        <h2>Review Your Responses</h2>
+        <p class="subtitle">Sorted by your importance ranking (highest first). Tap an item to view or edit your Definition of Done.</p>
+        <button class="btn btn-secondary" onclick="app.showScreen('survey')">Back to Survey</button>
+      </div>
+      <div id="review-container"></div>
+      <div class="submit-section">
         <div class="name-section">
           <label for="respondent-name">Name (optional)</label>
           <input type="text" id="respondent-name" placeholder="Your name">
@@ -48,7 +60,6 @@
     <div id="screen-done" class="screen">
       <div class="landing-content">
         <h2>Thank You!</h2>
-        <p>Your responses have been saved. The team lead will review all responses and generate consensus definitions.</p>
       </div>
     </div>
   </div>
