@@ -53,8 +53,8 @@ router.post('/items/:itemId/consensus', async (req, res) => {
     ORDER BY r.importance DESC
   `).all(itemId);
 
-  if (responses.length < 1) {
-    return res.status(400).json({ error: 'No Definition of Done responses for this item.' });
+  if (responses.length < 2) {
+    return res.status(400).json({ error: 'Need at least 2 Definition of Done responses to generate consensus.' });
   }
 
   try {
@@ -96,7 +96,7 @@ router.post('/consensus/all', async (req, res) => {
       ORDER BY r.importance DESC
     `).all(item.id);
 
-    if (responses.length < 1) continue;
+    if (responses.length < 2) continue;
 
     try {
       const result = await generateConsensus(item.title, responses);
@@ -135,6 +135,75 @@ router.get('/respondents', (req, res) => {
     'SELECT id, name, created_at, completed_at FROM respondents ORDER BY created_at DESC'
   ).all();
   res.json(respondents);
+});
+
+// Analysis dashboard
+router.get('/analysis', (req, res) => {
+  const db = getDb();
+
+  const categoryStats = db.prepare(`
+    SELECT i.category,
+      ROUND(AVG(r.importance), 2) as avg_importance,
+      COUNT(DISTINCT i.id) as item_count,
+      COUNT(r.id) as total_ratings
+    FROM items i
+    LEFT JOIN responses r ON i.id = r.item_id
+    LEFT JOIN respondents resp ON r.respondent_id = resp.id AND resp.completed_at IS NOT NULL
+    GROUP BY i.category
+    ORDER BY avg_importance DESC
+  `).all();
+
+  const itemStats = db.prepare(`
+    SELECT i.id, i.title, i.category,
+      ROUND(AVG(r.importance), 2) as avg_importance,
+      COUNT(r.id) as response_count
+    FROM items i
+    LEFT JOIN responses r ON i.id = r.item_id
+    LEFT JOIN respondents resp ON r.respondent_id = resp.id AND resp.completed_at IS NOT NULL
+    GROUP BY i.id
+    HAVING response_count > 0
+    ORDER BY avg_importance DESC
+  `).all();
+
+  const top5 = itemStats.slice(0, 5);
+  const bottom5 = itemStats.slice(-5).reverse();
+
+  const idkStats = db.prepare(`
+    SELECT i.id, i.title, i.category,
+      COUNT(CASE WHEN r.definition_of_done IS NULL OR r.definition_of_done = '' THEN 1 END) as idk_count,
+      COUNT(r.id) as total_responses
+    FROM items i
+    LEFT JOIN responses r ON i.id = r.item_id
+    LEFT JOIN respondents resp ON r.respondent_id = resp.id AND resp.completed_at IS NOT NULL
+    GROUP BY i.id
+    HAVING idk_count > 0
+    ORDER BY idk_count DESC
+  `).all();
+
+  const coverage = db.prepare(`
+    SELECT
+      COUNT(CASE WHEN r.definition_of_done IS NOT NULL AND r.definition_of_done != '' THEN 1 END) as with_dod,
+      COUNT(r.id) as total
+    FROM responses r
+    JOIN respondents resp ON r.respondent_id = resp.id AND resp.completed_at IS NOT NULL
+  `).get();
+
+  const totalRespondents = db.prepare(
+    'SELECT COUNT(*) as c FROM respondents WHERE completed_at IS NOT NULL'
+  ).get().c;
+
+  res.json({
+    totalRespondents,
+    categoryStats,
+    top5,
+    bottom5,
+    idkStats,
+    dodCoverage: {
+      withDod: coverage.with_dod,
+      total: coverage.total,
+      pct: coverage.total > 0 ? Math.round((coverage.with_dod / coverage.total) * 100) : 0
+    }
+  });
 });
 
 // Clear all entries

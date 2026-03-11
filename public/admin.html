@@ -27,8 +27,20 @@
       </div>
     </div>
 
-    <div id="ranked-list"></div>
-    <div id="admin-detail" style="margin-top: 2rem;"></div>
+    <!-- Tabs -->
+    <div class="admin-tabs">
+      <button class="admin-tab active" onclick="admin.switchTab('rankings')">Rankings</button>
+      <button class="admin-tab" onclick="admin.switchTab('analysis')">Analysis</button>
+    </div>
+
+    <div id="tab-rankings">
+      <div id="ranked-list"></div>
+      <div id="admin-detail" style="margin-top: 2rem;"></div>
+    </div>
+
+    <div id="tab-analysis" style="display:none;">
+      <div id="analysis-content"></div>
+    </div>
   </div>
 
   <script src="/js/admin.js"></script>

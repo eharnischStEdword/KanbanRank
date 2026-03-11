@@ -10,18 +10,21 @@ You will receive a kanban item title and multiple team members' descriptions of 
 
 Your job:
 1. Identify common themes across all responses
-2. Note any significant disagreements or different perspectives
-3. Produce a clear, actionable "Consensus Definition of Done" that the team can adopt
+2. Detect OUTLIER responses — if most respondents agree on a direction but one or two are significantly different, treat those as outliers. The consensus should reflect the majority view, not give equal weight to every response.
+3. Note any significant disagreements or outlier perspectives separately
+4. Produce a clear, actionable "Consensus Definition of Done" weighted toward the majority view
+5. Assign a confidence score from 0-100 reflecting how aligned the team is (100 = perfect agreement, 50 = moderate disagreement, below 30 = major splits)
 
 Format your response as JSON:
 {
   "commonThemes": ["Theme 1", "Theme 2"],
   "disagreements": ["Disagreement 1"] or [],
-  "consensusDefinition": "A clear, actionable paragraph defining what 'done' means for this item, synthesized from all responses.",
-  "confidence": "high|medium|low"
+  "outliers": ["Person X had a notably different view: ..."] or [],
+  "consensusDefinition": "A clear, actionable paragraph defining what 'done' means for this item, synthesized from the majority view.",
+  "confidence": 85
 }
 
-Be direct and practical. The definition should be specific enough that any team member can look at it and know whether the item is done or not.`;
+Be direct and practical. The definition should be specific enough that any team member can look at it and know whether the item is done or not. Weight the consensus toward responses that align with the majority — don't let a single outlier skew the definition.`;
 
 async function generateConsensus(itemTitle, responses) {
   const formatted = responses.map((r, i) => {

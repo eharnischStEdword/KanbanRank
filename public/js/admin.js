@@ -117,7 +117,15 @@ const admin = {
       data.disagreements.forEach(d => { html += '<li>' + this.esc(d) + '</li>'; });
       html += '</ul></div>';
     }
-    html += '<div class="consensus-confidence">Confidence: ' + this.esc(data.confidence) + '</div>';
+    if (data.outliers && data.outliers.length) {
+      html += '<div class="consensus-disagreements"><strong>Outliers:</strong><ul>';
+      data.outliers.forEach(function(o) { html += '<li>' + admin.esc(o) + '</li>'; });
+      html += '</ul></div>';
+    }
+    var conf = data.confidence;
+    var confDisplay = typeof conf === 'number' ? conf + '/100' : this.esc(String(conf));
+    var confColor = typeof conf === 'number' ? this.scoreColor(conf, 100) : 'var(--primary)';
+    html += '<div class="consensus-confidence" style="color:' + confColor + '">Confidence: ' + confDisplay + '</div>';
     html += '</div>';
     return html;
   },
@@ -173,6 +181,139 @@ const admin = {
     } catch (err) {
       alert('Failed to clear.');
     }
+  },
+
+  switchTab(tab) {
+    document.querySelectorAll('.admin-tab').forEach(function(t) { t.classList.remove('active'); });
+    document.querySelector('.admin-tab[onclick*="' + tab + '"]').classList.add('active');
+    document.getElementById('tab-rankings').style.display = tab === 'rankings' ? 'block' : 'none';
+    document.getElementById('tab-analysis').style.display = tab === 'analysis' ? 'block' : 'none';
+    if (tab === 'analysis') this.loadAnalysis();
+  },
+
+  async loadAnalysis() {
+    var container = document.getElementById('analysis-content');
+    container.innerHTML = '<div class="results-loading"><div class="spinner"></div></div>';
+    try {
+      var res = await fetch('/admin/analysis');
+      var data = await res.json();
+      this.renderAnalysis(data);
+    } catch (err) {
+      container.innerHTML = '<p style="color:#c00">Failed to load analysis.</p>';
+    }
+  },
+
+  renderAnalysis(data) {
+    var container = document.getElementById('analysis-content');
+    var html = '';
+
+    // Category Rankings
+    html += '<div class="analysis-section">';
+    html += '<h3>Category Priority Rankings</h3>';
+    if (data.categoryStats.length === 0) {
+      html += '<p style="color:var(--text-light)">No data yet.</p>';
+    } else {
+      data.categoryStats.forEach(function(cat, idx) {
+        var avg = cat.avg_importance || 0;
+        var pct = (avg / 5) * 100;
+        var color = admin.scoreColor(avg, 5);
+        var categoryClass = admin.categoryClass(cat.category);
+        html += '<div class="analysis-row">' +
+          '<div class="analysis-row-left">' +
+          '<span class="rank-number">' + (idx + 1) + '</span>' +
+          '<span class="category-badge ' + categoryClass + '">' + admin.esc(cat.category) + '</span>' +
+          '</div>' +
+          '<div class="analysis-bar-wrap">' +
+          '<div class="analysis-bar" style="width:' + pct + '%;background:' + color + '"></div>' +
+          '</div>' +
+          '<span class="analysis-value" style="color:' + color + '">' + avg.toFixed(1) + '</span>' +
+          '<span class="analysis-meta">' + cat.item_count + ' items, ' + cat.total_ratings + ' ratings</span>' +
+          '</div>';
+      });
+    }
+    html += '</div>';
+
+    // Top 5
+    html += '<div class="analysis-section">';
+    html += '<h3>Top 5 Highest Priority</h3>';
+    html += this.renderItemList(data.top5);
+    html += '</div>';
+
+    // Bottom 5
+    html += '<div class="analysis-section">';
+    html += '<h3>Bottom 5 Lowest Priority</h3>';
+    html += this.renderItemList(data.bottom5);
+    html += '</div>';
+
+    // DoD Coverage
+    html += '<div class="analysis-section">';
+    html += '<h3>Definition of Done Coverage</h3>';
+    var cov = data.dodCoverage;
+    var covColor = this.scoreColor(cov.pct, 100);
+    html += '<div class="coverage-stat">' +
+      '<div class="coverage-ring" style="--pct:' + cov.pct + '%;--ring-color:' + covColor + '">' +
+      '<span class="coverage-pct">' + cov.pct + '%</span>' +
+      '</div>' +
+      '<div class="coverage-detail">' +
+      '<p><strong>' + cov.withDod + '</strong> of <strong>' + cov.total + '</strong> responses include a Definition of Done</p>' +
+      '</div>' +
+      '</div>';
+    html += '</div>';
+
+    // IDK Report
+    if (data.idkStats.length > 0) {
+      html += '<div class="analysis-section">';
+      html += '<h3>Items With Most "I Don\'t Know" Responses</h3>';
+      data.idkStats.forEach(function(item) {
+        var pct = item.total_responses > 0 ? Math.round((item.idk_count / item.total_responses) * 100) : 0;
+        var color = admin.scoreColor(100 - pct, 100);
+        var categoryClass = admin.categoryClass(item.category);
+        html += '<div class="analysis-row">' +
+          '<div class="analysis-row-left">' +
+          '<span class="category-badge ' + categoryClass + '" style="font-size:0.7rem">' + admin.esc(item.category) + '</span>' +
+          '<span class="analysis-item-title">' + admin.esc(item.title) + '</span>' +
+          '</div>' +
+          '<div class="analysis-bar-wrap">' +
+          '<div class="analysis-bar" style="width:' + pct + '%;background:' + color + '"></div>' +
+          '</div>' +
+          '<span class="analysis-value" style="color:' + color + '">' + item.idk_count + '/' + item.total_responses + '</span>' +
+          '</div>';
+      });
+      html += '</div>';
+    }
+
+    container.innerHTML = html;
+  },
+
+  renderItemList(items) {
+    if (!items || items.length === 0) return '<p style="color:var(--text-light)">No data yet.</p>';
+    var html = '';
+    items.forEach(function(item, idx) {
+      var avg = item.avg_importance || 0;
+      var pct = (avg / 5) * 100;
+      var color = admin.scoreColor(avg, 5);
+      var categoryClass = admin.categoryClass(item.category);
+      html += '<div class="analysis-row">' +
+        '<div class="analysis-row-left">' +
+        '<span class="rank-number">' + (idx + 1) + '</span>' +
+        '<span class="category-badge ' + categoryClass + '" style="font-size:0.7rem">' + admin.esc(item.category) + '</span>' +
+        '<span class="analysis-item-title">' + admin.esc(item.title) + '</span>' +
+        '</div>' +
+        '<div class="analysis-bar-wrap">' +
+        '<div class="analysis-bar" style="width:' + pct + '%;background:' + color + '"></div>' +
+        '</div>' +
+        '<span class="analysis-value" style="color:' + color + '">' + avg.toFixed(1) + '</span>' +
+        '</div>';
+    });
+    return html;
+  },
+
+  scoreColor(value, max) {
+    var ratio = max > 0 ? value / max : 0;
+    var r = Math.round(220 - ratio * 180);
+    var g = Math.round(60 + ratio * 140);
+    var b = 60;
+    return 'rgb(' + r + ',' + g + ',' + b + ')';
   },
 
   esc(str) {
