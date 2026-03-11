@@ -45,7 +45,8 @@ const app = {
     for (const [category, items] of Object.entries(categories)) {
       const catHeader = document.createElement('div');
       catHeader.className = 'category-header';
-      catHeader.innerHTML = '<h2>' + this.esc(category) + '</h2>';
+      const catBadgeClass = this.categoryClass(category);
+      catHeader.innerHTML = '<h2><span class="category-badge ' + catBadgeClass + '">' + this.esc(category) + '</span></h2>';
       container.appendChild(catHeader);
 
       items.forEach(item => {
@@ -58,7 +59,7 @@ const app = {
 
         const titleRow = document.createElement('div');
         titleRow.className = 'item-title-row';
-        titleRow.innerHTML = '<span class="item-number">' + itemIndex + '.</span> <span class="item-title">' + this.esc(item.title) + '</span>';
+        titleRow.innerHTML = '<span class="item-title">' + this.esc(item.title) + '</span>';
         card.appendChild(titleRow);
 
         const impWrap = document.createElement('div');
@@ -109,10 +110,18 @@ const app = {
     this.updateProgress();
   },
 
+  categoryClass(cat) {
+    if (cat.includes('Facilities')) return 'cat-facilities';
+    if (cat.includes('Faith')) return 'cat-faith';
+    if (cat.includes('User')) return 'cat-ux';
+    if (cat.includes('Culture')) return 'cat-culture';
+    return '';
+  },
+
   updateProgress() {
     const rated = Object.values(this.answers).filter(a => a.importance).length;
     const total = this.items.length;
-    const pct = (rated / total) * 100;
+    const pct = total > 0 ? (rated / total) * 100 : 0;
     document.getElementById('progress-fill').style.width = pct + '%';
     document.getElementById('progress-label').textContent = rated + ' of ' + total + ' items rated';
   },

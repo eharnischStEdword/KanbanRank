@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin | KanbanRank</title>
+  <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+  <div class="container" style="max-width: 900px;">
+    <div class="header">
+      <h1>KanbanRank</h1>
+      <p class="subtitle">Admin Dashboard</p>
+    </div>
+
+    <div class="admin-header">
+      <div>
+        <span id="respondent-count" style="font-size: 0.9rem; color: var(--text-light);"></span>
+      </div>
+      <button class="btn btn-primary admin-btn" onclick="admin.generateAll()">
+        Generate All Consensus
+      </button>
+    </div>
+
+    <div id="ranked-list"></div>
+    <div id="admin-detail" style="margin-top: 2rem;"></div>
+  </div>
+
+  <script src="/js/admin.js"></script>
+</body>
+</html>
