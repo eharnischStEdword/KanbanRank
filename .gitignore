@@ -1,3 +1,5 @@
 node_modules/
 .env
 db/*.db
+db/*.db-shm
+db/*.db-wal
