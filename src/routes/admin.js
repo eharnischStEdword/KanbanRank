@@ -87,6 +87,8 @@ router.post('/consensus/all', async (req, res) => {
   const results = {};
   const errors = [];
 
+  let skipped = 0;
+
   for (const item of items) {
     const responses = db.prepare(`
       SELECT r.importance, r.definition_of_done, resp.name
@@ -96,7 +98,10 @@ router.post('/consensus/all', async (req, res) => {
       ORDER BY r.importance DESC
     `).all(item.id);
 
-    if (responses.length < 2) continue;
+    if (responses.length < 2) {
+      skipped++;
+      continue;
+    }
 
     try {
       const result = await generateConsensus(item.title, responses);
@@ -111,7 +116,7 @@ router.post('/consensus/all', async (req, res) => {
     }
   }
 
-  res.json({ generated: Object.keys(results).length, errors });
+  res.json({ generated: Object.keys(results).length, skipped, total: items.length, errors });
 });
 
 // Delete a respondent

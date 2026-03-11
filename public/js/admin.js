@@ -157,8 +157,17 @@ const admin = {
     try {
       const res = await fetch('/admin/consensus/all', { method: 'POST' });
       const data = await res.json();
-      detail.innerHTML = '<div class="result-section"><p>Generated consensus for ' + data.generated + ' items.' +
-        (data.errors.length ? ' ' + data.errors.length + ' errors.' : '') + '</p></div>';
+      var html = '<div class="result-section">';
+      html += '<p><strong>' + data.generated + '</strong> of ' + data.total + ' items got consensus.</p>';
+      if (data.skipped > 0) {
+        html += '<p style="color:var(--text-light); margin-top:0.5rem;">' + data.skipped +
+          ' items skipped — need at least 2 written Definitions of Done per item to generate consensus.</p>';
+      }
+      if (data.errors.length > 0) {
+        html += '<p style="color:#c00; margin-top:0.5rem;">' + data.errors.length + ' items failed to generate.</p>';
+      }
+      html += '</div>';
+      detail.innerHTML = html;
       this.loadDashboard();
     } catch (err) {
       detail.innerHTML = '<p style="color:#c00">Failed.</p>';
