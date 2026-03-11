@@ -184,6 +184,69 @@ const app = {
     }
   },
 
+  showReview() {
+    const missing = this.items.filter(item => !this.answers[item.id] || !this.answers[item.id].importance);
+    if (missing.length > 0) {
+      alert('Please rate the importance of all ' + missing.length + ' remaining items before reviewing.');
+      const firstMissing = document.querySelector('[data-item-id="' + missing[0].id + '"]');
+      if (firstMissing) firstMissing.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      return;
+    }
+    this.renderReview();
+    this.showScreen('review');
+  },
+
+  renderReview() {
+    const container = document.getElementById('review-container');
+    const sorted = this.items.slice().sort((a, b) => {
+      return (this.answers[b.id].importance || 0) - (this.answers[a.id].importance || 0);
+    });
+
+    container.innerHTML = sorted.map(item => {
+      const answer = this.answers[item.id];
+      const imp = answer.importance;
+      const catClass = this.categoryClass(item.category);
+      const dod = answer.idk ? '' : (answer.definitionOfDone || '');
+      const dodDisplay = answer.idk ? '<em style="color:var(--text-light)">Marked as "I don\'t know"</em>' : (dod ? this.esc(dod) : '<em style="color:var(--text-light)">No definition provided</em>');
+
+      return '<div class="review-row" data-review-id="' + item.id + '">' +
+        '<div class="review-row-main" onclick="app.toggleReviewDod(' + item.id + ')">' +
+          '<div class="review-info">' +
+            '<span class="review-title">' + this.esc(item.title) + '</span>' +
+            '<span class="category-badge ' + catClass + '" style="font-size:0.7rem">' + this.esc(item.category) + '</span>' +
+          '</div>' +
+          '<div class="review-controls">' +
+            '<button class="adj-btn" onclick="event.stopPropagation(); app.adjustImportance(' + item.id + ', -1)">−</button>' +
+            '<span class="review-score" id="review-score-' + item.id + '">' + imp + '</span>' +
+            '<button class="adj-btn" onclick="event.stopPropagation(); app.adjustImportance(' + item.id + ', 1)">+</button>' +
+          '</div>' +
+        '</div>' +
+        '<div class="review-dod" id="review-dod-' + item.id + '" style="display:none;">' +
+          '<div class="review-dod-content" id="review-dod-display-' + item.id + '">' + dodDisplay + '</div>' +
+          (answer.idk ? '' : '<textarea class="open-text review-dod-edit" id="review-dod-edit-' + item.id + '" oninput="app.updateReviewDod(' + item.id + ', this.value)">' + this.esc(dod) + '</textarea>') +
+        '</div>' +
+      '</div>';
+    }).join('');
+  },
+
+  toggleReviewDod(itemId) {
+    const dod = document.getElementById('review-dod-' + itemId);
+    dod.style.display = dod.style.display === 'none' ? 'block' : 'none';
+  },
+
+  adjustImportance(itemId, delta) {
+    const current = this.answers[itemId].importance;
+    const next = Math.max(1, Math.min(5, current + delta));
+    if (next === current) return;
+    this.answers[itemId].importance = next;
+    document.getElementById('review-score-' + itemId).textContent = next;
+    this.renderReview();
+  },
+
+  updateReviewDod(itemId, value) {
+    this.answers[itemId].definitionOfDone = value;
+  },
+
   esc(str) {
     if (!str) return '';
     const div = document.createElement('div');

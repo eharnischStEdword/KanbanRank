@@ -767,6 +767,129 @@ body {
   line-height: 1.5;
 }
 
+/* === Review Screen === */
+.review-header {
+  text-align: center;
+  margin-bottom: 1.5rem;
+}
+
+.review-header h2 {
+  font-size: 1.3rem;
+  font-weight: 600;
+  margin-bottom: 0.5rem;
+}
+
+.review-header .subtitle {
+  font-size: 0.85rem;
+  color: var(--text-light);
+  margin-bottom: 1rem;
+}
+
+.review-row {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  margin-bottom: 0.5rem;
+  box-shadow: var(--shadow);
+  overflow: hidden;
+  transition: box-shadow 0.2s;
+}
+
+.review-row:hover {
+  box-shadow: var(--shadow-hover);
+}
+
+.review-row-main {
+  display: flex;
+  align-items: center;
+  padding: 0.75rem 1rem;
+  cursor: pointer;
+  gap: 0.75rem;
+  user-select: none;
+}
+
+.review-row-main:hover {
+  background: #F8FAFF;
+}
+
+.review-info {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.review-title {
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: var(--text);
+}
+
+.review-controls {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  flex-shrink: 0;
+}
+
+.adj-btn {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  border: 2px solid var(--border);
+  background: var(--white);
+  color: var(--primary);
+  font-size: 1.1rem;
+  font-weight: 700;
+  font-family: inherit;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.15s;
+  line-height: 1;
+}
+
+.adj-btn:hover {
+  border-color: var(--primary-light);
+  background: #EFF6FF;
+}
+
+.adj-btn:active {
+  transform: scale(0.92);
+}
+
+.review-score {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: var(--primary);
+  color: var(--white);
+  font-size: 0.9rem;
+  font-weight: 700;
+}
+
+.review-dod {
+  border-top: 1px solid var(--border);
+  padding: 1rem 1.25rem;
+  background: #FAFBFD;
+}
+
+.review-dod-content {
+  font-size: 0.85rem;
+  color: var(--text-light);
+  line-height: 1.5;
+  margin-bottom: 0.75rem;
+}
+
+.review-dod-edit {
+  min-height: 70px;
+}
+
 /* === Responsive Mobile Styles === */
 @media (max-width: 600px) {
   .container {
@@ -857,5 +980,15 @@ body {
   .coverage-stat {
     flex-direction: column;
     text-align: center;
+  }
+
+  .review-info {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.25rem;
+  }
+
+  .review-title {
+    font-size: 0.85rem;
   }
 }
