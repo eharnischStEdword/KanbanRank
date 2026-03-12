@@ -90,6 +90,20 @@
     </div>
   </div>
 
+  <!-- Floating Save & Return Later button -->
+  <div id="save-later-fab" class="save-later-fab" style="display:none;">
+    <button class="save-later-btn" onclick="app.showSaveConfirmation()">
+      <svg width="16" height="16" viewBox="0 0 16 16" fill="none" style="flex-shrink:0;"><path d="M2 2h9l3 3v9a1 1 0 01-1 1H3a1 1 0 01-1-1V3a1 1 0 011-1z" stroke="currentColor" stroke-width="1.5" fill="none"/><rect x="5" y="2" width="4" height="4" rx="0.5" stroke="currentColor" stroke-width="1.2" fill="none"/><rect x="4" y="9" width="6" height="4" rx="0.5" stroke="currentColor" stroke-width="1.2" fill="none"/></svg>
+      Save &amp; Return Later
+    </button>
+    <div id="save-later-toast" class="save-later-toast">
+      <strong>Progress saved!</strong>
+      <p>Your work is saved in this browser. You can close this tab and come back anytime — just use the same browser on this device.</p>
+      <p class="save-later-warning">Clearing your browser history, cache, or cookies will erase your progress.</p>
+      <button class="btn btn-secondary save-later-dismiss" onclick="app.hideSaveConfirmation()">Got it</button>
+    </div>
+  </div>
+
   <script src="/js/app.js"></script>
 </body>
 </html>

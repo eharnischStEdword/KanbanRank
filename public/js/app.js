@@ -7,6 +7,20 @@ const app = {
     document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
     document.getElementById('screen-' + id).classList.add('active');
     window.scrollTo(0, 0);
+    // Show save FAB on survey and review screens
+    var fab = document.getElementById('save-later-fab');
+    if (fab) fab.style.display = (id === 'survey' || id === 'review') ? 'block' : 'none';
+  },
+
+  showSaveConfirmation() {
+    this.saveProgress();
+    var toast = document.getElementById('save-later-toast');
+    if (toast) toast.classList.add('show');
+  },
+
+  hideSaveConfirmation() {
+    var toast = document.getElementById('save-later-toast');
+    if (toast) toast.classList.remove('show');
   },
 
   async startSurvey() {
