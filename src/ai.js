@@ -44,7 +44,7 @@ Format your response as JSON:
   "gaps": "What's missing or needs team discussion to complete this DoD" or null
 }
 
-The "gaps" field should be null only if the DoD genuinely meets best practices. Otherwise, keep it to ONE short sentence — e.g., "Needs measurable targets and more responses." Do NOT list examples or suggestions in gaps.
+The "gaps" field should be null only if dodScore >= 80. Otherwise, set it to a single short phrase like "Needs measurable targets" or "Needs more team responses." Maximum 10 words. No examples, no suggestions, no questions.
 
 The DoD goes on a physical kanban board in an office. Make it practical and checkable — but ONLY from real data.`;
 
