@@ -573,10 +573,23 @@ body {
 }
 
 .consensus-confidence,
-.consensus-dod-score {
+.consensus-dod-score,
+.consensus-dod-hint {
   font-size: 0.8rem;
   font-weight: 500;
   color: var(--primary);
+}
+
+.consensus-dod-hint {
+  font-weight: 400;
+  font-style: italic;
+}
+
+.dod-explainer {
+  font-size: 0.78rem;
+  color: var(--text-light);
+  margin-bottom: 0.75rem;
+  line-height: 1.4;
 }
 
 /* === Individual Responses === */

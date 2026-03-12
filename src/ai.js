@@ -44,7 +44,7 @@ Format your response as JSON:
   "gaps": "What's missing or needs team discussion to complete this DoD" or null
 }
 
-IMPORTANT: The "gaps" field should be null only if the DoD is genuinely complete and meets best practices. Otherwise, be honest about what's missing — e.g., "Only 3 responses received. Criteria lack specific metrics. Team should discuss measurable targets for X and Y."
+The "gaps" field should be null only if the DoD genuinely meets best practices. Otherwise, keep it to ONE short sentence — e.g., "Needs measurable targets and more responses." Do NOT list examples or suggestions in gaps.
 
 The DoD goes on a physical kanban board in an office. Make it practical and checkable — but ONLY from real data.`;
 

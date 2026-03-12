@@ -124,7 +124,9 @@ const admin = {
 
   renderConsensus(data) {
     let html = '<div class="consensus-box">';
-    html += '<h4>Consensus Definition of Done</h4>';
+    html += '<h4>Consensus Definition of Done (DoD)</h4>';
+    html += '<p class="dod-explainer">For your Definition of Done (DoD), use <strong>SMART</strong> goals: ' +
+      '<strong>S</strong>pecific, <strong>M</strong>easurable, <strong>A</strong>chievable, <strong>R</strong>elevant, <strong>T</strong>ime-bound.</p>';
     html += '<div class="consensus-definition">' + this.formatDoD(data.consensusDefinition) + '</div>';
     if (data.commonThemes && data.commonThemes.length) {
       html += '<div class="consensus-themes"><strong>Common Themes:</strong> ' +
@@ -140,9 +142,6 @@ const admin = {
       data.outliers.forEach(function(o) { html += '<li>' + admin.esc(o) + '</li>'; });
       html += '</ul></div>';
     }
-    if (data.gaps) {
-      html += '<div class="consensus-gaps"><strong>Needs More Input:</strong> ' + this.esc(data.gaps) + '</div>';
-    }
     var conf = data.confidence;
     var confDisplay = typeof conf === 'number' ? conf + '%' : this.esc(String(conf));
     var confColor = typeof conf === 'number' ? this.confidenceColor(conf) : 'var(--primary)';
@@ -151,6 +150,9 @@ const admin = {
     if (typeof data.dodScore === 'number') {
       var dodColor = this.confidenceColor(data.dodScore);
       html += '<span class="consensus-dod-score" style="color:' + dodColor + '">DoD Quality: ' + data.dodScore + '%</span>';
+      if (data.dodScore < 60) {
+        html += '<span class="consensus-dod-hint" style="color:' + dodColor + '">Needs more SMART goals to receive top marks</span>';
+      }
     }
     html += '</div>';
     html += '</div>';
@@ -588,12 +590,13 @@ const admin = {
   formatDoD(text) {
     if (!text) return '';
     var escaped = this.esc(text);
-    // If it has bullet points (- or *), render as a list
-    var lines = escaped.split(/\n/).filter(function(l) { return l.trim(); });
-    var hasBullets = lines.some(function(l) { return /^\s*[-*]\s/.test(l); });
+    // Split on newlines OR inline bullet characters (•, ·, ●)
+    var lines = escaped.split(/\n|(?=[•·●])/).filter(function(l) { return l.trim(); });
+    var bulletPattern = /^\s*[-*•·●]\s*/;
+    var hasBullets = lines.some(function(l) { return bulletPattern.test(l); });
     if (hasBullets) {
       var items = lines.map(function(l) {
-        return '<li>' + l.replace(/^\s*[-*]\s*/, '') + '</li>';
+        return '<li>' + l.replace(bulletPattern, '') + '</li>';
       }).join('');
       return '<ul class="dod-checklist">' + items + '</ul>';
     }
