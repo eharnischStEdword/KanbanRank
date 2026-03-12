@@ -914,6 +914,123 @@ body {
   color: var(--text-light);
 }
 
+/* === Left-align paragraph text === */
+.response-dod,
+.consensus-definition,
+.review-dod-content,
+.resp-item-dod {
+  text-align: left;
+}
+
+/* === Respondent Rows (Responses Tab) === */
+.respondent-row {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  margin-bottom: 0.5rem;
+  box-shadow: var(--shadow);
+  overflow: hidden;
+}
+
+.respondent-row:hover {
+  box-shadow: var(--shadow-hover);
+}
+
+.respondent-row-main {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.75rem 1rem;
+  cursor: pointer;
+  user-select: none;
+}
+
+.respondent-row-main:hover {
+  background: #F8FAFF;
+}
+
+.respondent-info {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.respondent-name {
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: var(--text);
+}
+
+.respondent-date {
+  font-size: 0.85rem;
+  color: var(--text-light);
+}
+
+.respondent-detail {
+  border-top: 1px solid var(--border);
+  padding: 1rem 1.25rem;
+  background: #FAFBFD;
+}
+
+.resp-category-group {
+  margin-bottom: 1rem;
+}
+
+.resp-item {
+  background: var(--white);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 0.6rem 0.85rem;
+  margin-bottom: 0.4rem;
+}
+
+.resp-item-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 0.3rem;
+}
+
+.resp-item-title {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--text);
+}
+
+.resp-item-right {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  flex-shrink: 0;
+}
+
+.resp-importance-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  color: var(--white);
+  font-size: 0.8rem;
+  font-weight: 700;
+}
+
+.resp-item-dod {
+  font-size: 0.8rem;
+  color: var(--text-light);
+  line-height: 1.45;
+}
+
+.edit-importance-select {
+  padding: 0.2rem 0.4rem;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  font-size: 0.8rem;
+  font-family: inherit;
+  background: var(--white);
+}
+
 /* === Resume Banner === */
 .resume-banner {
   background: #EFF6FF;
@@ -1048,5 +1165,22 @@ body {
 
   .review-title {
     font-size: 0.85rem;
+  }
+
+  .respondent-info {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.25rem;
+  }
+
+  .resp-item-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.35rem;
+  }
+
+  .resp-item-right {
+    width: 100%;
+    justify-content: flex-start;
   }
 }

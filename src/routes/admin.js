@@ -121,6 +121,48 @@ router.post('/consensus/all', async (req, res) => {
   res.json({ generated: Object.keys(results).length, skipped, total: items.length, errors });
 });
 
+// Get all responses for a single respondent
+router.get('/respondents/:id/responses', (req, res) => {
+  const db = getDb();
+  const { id } = req.params;
+
+  const respondent = db.prepare('SELECT id, name, completed_at FROM respondents WHERE id = ?').get(id);
+  if (!respondent) return res.status(404).json({ error: 'Respondent not found' });
+
+  const responses = db.prepare(`
+    SELECT r.id as response_id, r.item_id, r.importance, r.definition_of_done, i.title, i.category
+    FROM responses r
+    JOIN items i ON r.item_id = i.id
+    WHERE r.respondent_id = ?
+    ORDER BY i.category, i.title
+  `).all(id);
+
+  res.json({ respondent, responses });
+});
+
+// Update a single response (importance and/or definition_of_done)
+router.patch('/responses/:responseId', (req, res) => {
+  const db = getDb();
+  const { responseId } = req.params;
+  const { importance, definition_of_done } = req.body;
+
+  const existing = db.prepare('SELECT id FROM responses WHERE id = ?').get(responseId);
+  if (!existing) return res.status(404).json({ error: 'Response not found' });
+
+  if (importance !== undefined) {
+    if (!Number.isInteger(importance) || importance < 1 || importance > 5) {
+      return res.status(400).json({ error: 'Importance must be 1-5' });
+    }
+    db.prepare('UPDATE responses SET importance = ? WHERE id = ?').run(importance, responseId);
+  }
+
+  if (definition_of_done !== undefined) {
+    db.prepare('UPDATE responses SET definition_of_done = ? WHERE id = ?').run(definition_of_done, responseId);
+  }
+
+  res.json({ ok: true });
+});
+
 // Delete a respondent
 router.delete('/respondents/:id', (req, res) => {
   const db = getDb();
