@@ -327,7 +327,7 @@ const app = {
           '</div>' +
           '<div class="review-controls">' +
             '<button class="adj-btn" onclick="event.stopPropagation(); app.adjustImportance(' + item.id + ', -1)">−</button>' +
-            '<span class="review-score" id="review-score-' + item.id + '">' + imp + '</span>' +
+            '<span class="review-score" id="review-score-' + item.id + '" style="background:' + this.importanceColor(imp) + '">' + imp + '</span>' +
             '<button class="adj-btn" onclick="event.stopPropagation(); app.adjustImportance(' + item.id + ', 1)">+</button>' +
           '</div>' +
         '</div>' +
@@ -355,6 +355,11 @@ const app = {
 
   updateReviewDod(itemId, value) {
     this.answers[itemId].definitionOfDone = value;
+  },
+
+  importanceColor(val) {
+    var colors = { 1: '#DC2626', 2: '#F97316', 3: '#EAB308', 4: '#22C55E', 5: '#16A34A' };
+    return colors[val] || '#94A3B8';
   },
 
   esc(str) {
