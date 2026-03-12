@@ -168,6 +168,7 @@ const admin = {
       }
       html += '</div>';
       detail.innerHTML = html;
+      detail.scrollIntoView({ behavior: 'smooth', block: 'center' });
       this.loadDashboard();
     } catch (err) {
       detail.innerHTML = '<p style="color:#c00">Failed.</p>';
