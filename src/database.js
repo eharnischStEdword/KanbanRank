@@ -15,12 +15,23 @@ function getDb() {
     fs.mkdirSync(dbDir, { recursive: true });
   }
 
+  const dbExists = fs.existsSync(DB_PATH);
+  console.log(`[DB] Path: ${DB_PATH}`);
+  console.log(`[DB] Database file exists: ${dbExists}`);
+  if (dbExists) {
+    const stats = fs.statSync(DB_PATH);
+    console.log(`[DB] Database size: ${stats.size} bytes, modified: ${stats.mtime.toISOString()}`);
+  }
+
   db = new Database(DB_PATH);
   db.pragma('journal_mode = WAL');
   db.pragma('foreign_keys = ON');
 
   createTables(db);
   seedItems(db);
+
+  const respondentCount = db.prepare('SELECT COUNT(*) as c FROM respondents WHERE completed_at IS NOT NULL').get().c;
+  console.log(`[DB] Completed respondents: ${respondentCount}`);
 
   return db;
 }
