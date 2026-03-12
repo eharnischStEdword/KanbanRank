@@ -590,9 +590,10 @@ const admin = {
   formatDoD(text) {
     if (!text) return '';
     var escaped = this.esc(text);
-    // Split on newlines OR inline bullet characters (•, ·, ●)
-    var lines = escaped.split(/\n|(?=[•·●])/).filter(function(l) { return l.trim(); });
-    var bulletPattern = /^\s*[-*•·●]\s*/;
+    // Split on newlines OR inline bullet/checkbox characters
+    var bulletChars = /[•·●□☐☑☒✓✔■▪▸►\u2610\u2611\u2612\u25A1\u25CB]/;
+    var lines = escaped.split(new RegExp('\\n|(?=' + bulletChars.source + ')')).filter(function(l) { return l.trim(); });
+    var bulletPattern = new RegExp('^\\s*(?:' + bulletChars.source + '|[-*])\\s*');
     var hasBullets = lines.some(function(l) { return bulletPattern.test(l); });
     if (hasBullets) {
       var items = lines.map(function(l) {
