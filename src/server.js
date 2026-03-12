@@ -22,6 +22,20 @@ app.get('*', (req, res) => {
   res.sendFile(path.join(__dirname, '..', 'public', 'index.html'));
 });
 
-app.listen(PORT, () => {
+app.use((err, req, res, next) => {
+  console.error('Unhandled error:', err);
+  res.status(500).json({ error: 'Internal server error' });
+});
+
+const server = app.listen(PORT, () => {
   console.log(`KanbanRank running on port ${PORT}`);
+});
+
+process.on('SIGTERM', () => {
+  console.log('[DB] Shutting down gracefully...');
+  server.close(() => {
+    const db = getDb();
+    db.close();
+    process.exit(0);
+  });
 });

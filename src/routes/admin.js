@@ -13,6 +13,8 @@ router.get('/results', (req, res) => {
       COUNT(r.id) as response_count
     FROM items i
     LEFT JOIN responses r ON i.id = r.item_id
+    LEFT JOIN respondents resp ON r.respondent_id = resp.id
+    WHERE resp.completed_at IS NOT NULL OR r.id IS NULL
     GROUP BY i.id
     ORDER BY avg_importance DESC, i.title ASC
   `).all();

@@ -26,6 +26,14 @@ router.post('/responses/:respondentId', (req, res) => {
   if (!responses || !Array.isArray(responses)) {
     return res.status(400).json({ error: 'responses array required' });
   }
+  for (const item of responses) {
+    if (!Number.isInteger(item.itemId)) {
+      return res.status(400).json({ error: 'Invalid itemId' });
+    }
+    if (!Number.isInteger(item.importance) || item.importance < 1 || item.importance > 5) {
+      return res.status(400).json({ error: 'Importance must be 1-5 for item ' + item.itemId });
+    }
+  }
   const db = getDb();
   const respondent = db.prepare('SELECT id FROM respondents WHERE id = ?').get(respondentId);
   if (!respondent) return res.status(404).json({ error: 'Respondent not found' });

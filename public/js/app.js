@@ -31,10 +31,22 @@ const app = {
       this.pendingSave = null;
       const itemsRes = await fetch('/api/items');
       this.items = await itemsRes.json();
+      // Verify respondent still exists (may have been cleared by admin)
+      const checkRes = await fetch('/api/respondents', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ name: null })
+      });
+      if (!checkRes.ok) throw new Error('Failed to create respondent');
+      const data = await checkRes.json();
+      this.respondentId = data.id;
+      this.saveProgress();
       this.renderSurvey();
       this.showScreen('survey');
     } catch (err) {
-      alert('Failed to connect. Please try again.');
+      this.clearProgress();
+      alert('Your saved session expired. Starting fresh.');
+      await this.beginFreshSurvey();
     }
   },
 

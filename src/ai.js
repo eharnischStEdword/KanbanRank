@@ -46,8 +46,10 @@ async function generateConsensus(itemTitle, responses) {
   try {
     return JSON.parse(text);
   } catch {
+    console.error('[AI] Failed to parse response directly, trying regex. Raw:', text.substring(0, 500));
     const match = text.match(/\{[\s\S]*\}/);
     if (match) return JSON.parse(match[0]);
+    console.error('[AI] Regex fallback also failed. Full response:', text);
     throw new Error('Failed to parse AI response as JSON');
   }
 }
