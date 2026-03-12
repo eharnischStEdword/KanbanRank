@@ -977,6 +977,68 @@ body {
   font-size: 1rem;
 }
 
+/* === SMART Goals Explainer === */
+.smart-explainer {
+  background: linear-gradient(135deg, #EFF6FF 0%, #F0F4FF 100%);
+  border: 1px solid #BFDBFE;
+  border-radius: var(--radius);
+  padding: 1.25rem 1.5rem;
+  margin-bottom: 1.5rem;
+}
+
+.smart-explainer-header {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.95rem;
+  color: var(--text);
+  margin-bottom: 0.5rem;
+}
+
+.smart-explainer-icon {
+  font-size: 1.1rem;
+}
+
+.smart-explainer-desc {
+  font-size: 0.85rem;
+  color: var(--text-light);
+  margin-bottom: 0.75rem;
+  line-height: 1.5;
+}
+
+.smart-grid {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 0.2rem 0.6rem;
+  margin-bottom: 0.75rem;
+  padding-left: 0.25rem;
+}
+
+.smart-letter {
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: var(--primary);
+  line-height: 1.6;
+}
+
+.smart-word {
+  font-size: 0.85rem;
+  color: var(--text);
+  line-height: 1.6;
+}
+
+.smart-explainer-example {
+  font-size: 0.8rem;
+  color: var(--text-light);
+  border-top: 1px solid #BFDBFE;
+  padding-top: 0.6rem;
+  line-height: 1.5;
+}
+
+.smart-explainer-example em {
+  color: var(--text);
+}
+
 /* === Export menu hover === */
 #export-menu a:hover {
   background: var(--bg);
