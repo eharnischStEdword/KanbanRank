@@ -890,6 +890,53 @@ body {
   min-height: 70px;
 }
 
+/* === Timeline === */
+.timeline-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.6rem 0;
+  border-bottom: 1px solid #F1F5F9;
+}
+
+.timeline-row:last-child {
+  border-bottom: none;
+}
+
+.timeline-name {
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: var(--text);
+}
+
+.timeline-date {
+  font-size: 0.85rem;
+  color: var(--text-light);
+}
+
+/* === Resume Banner === */
+.resume-banner {
+  background: #EFF6FF;
+  border: 1px solid var(--primary-light);
+  border-radius: var(--radius);
+  padding: 1.25rem;
+  text-align: center;
+  margin-bottom: 1rem;
+}
+
+.resume-banner p {
+  font-size: 0.95rem;
+  font-weight: 500;
+  color: var(--text);
+  margin-bottom: 0.75rem;
+}
+
+.resume-buttons {
+  display: flex;
+  gap: 0.75rem;
+  justify-content: center;
+}
+
 /* === Confetti Canvas === */
 #confetti-canvas {
   position: fixed;

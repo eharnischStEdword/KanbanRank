@@ -198,7 +198,51 @@ const admin = {
     document.querySelector('.admin-tab[onclick*="' + tab + '"]').classList.add('active');
     document.getElementById('tab-rankings').style.display = tab === 'rankings' ? 'block' : 'none';
     document.getElementById('tab-analysis').style.display = tab === 'analysis' ? 'block' : 'none';
+    document.getElementById('tab-timeline').style.display = tab === 'timeline' ? 'block' : 'none';
     if (tab === 'analysis') this.loadAnalysis();
+    if (tab === 'timeline') this.loadTimeline();
+  },
+
+  async refreshDashboard() {
+    var btn = document.getElementById('refresh-btn');
+    btn.textContent = 'Refreshing...';
+    btn.disabled = true;
+    await this.loadDashboard();
+    btn.textContent = 'Refresh';
+    btn.disabled = false;
+  },
+
+  async loadTimeline() {
+    var container = document.getElementById('timeline-content');
+    container.innerHTML = '<div class="results-loading"><div class="spinner"></div></div>';
+    try {
+      var res = await fetch('/admin/timeline');
+      var data = await res.json();
+      this.renderTimeline(data);
+    } catch (err) {
+      container.innerHTML = '<p style="color:#c00">Failed to load timeline.</p>';
+    }
+  },
+
+  renderTimeline(submissions) {
+    var container = document.getElementById('timeline-content');
+    if (submissions.length === 0) {
+      container.innerHTML = '<div class="analysis-section"><p style="color:var(--text-light)">No submissions yet.</p></div>';
+      return;
+    }
+    var html = '<div class="analysis-section"><h3>Submission Timeline</h3>';
+    submissions.forEach(function(s) {
+      var name = s.name || 'Anonymous';
+      var date = new Date(s.completed_at + 'Z');
+      var formatted = date.toLocaleDateString(undefined, { month: 'short', day: 'numeric' }) +
+        ', ' + date.toLocaleTimeString(undefined, { hour: 'numeric', minute: '2-digit' });
+      html += '<div class="timeline-row">' +
+        '<span class="timeline-name">' + admin.esc(name) + '</span>' +
+        '<span class="timeline-date">' + formatted + '</span>' +
+        '</div>';
+    });
+    html += '</div>';
+    container.innerHTML = html;
   },
 
   async loadAnalysis() {

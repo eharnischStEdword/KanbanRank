@@ -13,13 +13,18 @@ A team survey tool for prioritizing kanban board items. Team members rank items 
 - Optional name field at the end before submission
 - Progress bar tracks completion
 - Single scrolling page grouped by category
+- **Progress auto-save** — answers saved to localStorage; resume or start fresh on return
+- **Review screen** — sorted by importance with +/- adjustment and editable DoD
+- Confetti celebration on submission
 
 ### Admin Dashboard (`/admin.html`)
 - **Rankings tab** — Items auto-sorted by average importance with expandable details
 - **Analysis tab** — Category priority rankings, top/bottom 5 items, DoD coverage ring, IDK report
+- **Timeline tab** — Chronological list of submissions with timestamps
+- **Refresh button** — Manual refresh to pull latest data
 - Color-coded bars (green = high priority, red = low)
 - Click any item to see individual responses and AI consensus
-- Generate consensus per item or for all items at once
+- Generate consensus per item or for all items at once (auto-scrolls to results)
 - Clear all data button (double confirmation)
 
 ### AI Consensus (Claude)
@@ -96,4 +101,5 @@ The database is auto-created and seeded from `data/kanban_items.csv` on first ru
 - `GET /admin/analysis` — Category stats, top/bottom 5, IDK report, DoD coverage
 - `GET /admin/respondents` — List all respondents
 - `DELETE /admin/respondents/:id` — Delete a respondent
+- `GET /admin/timeline` — Submission timestamps
 - `POST /admin/clear-all` — Wipe all data

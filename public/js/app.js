@@ -11,22 +11,76 @@ const app = {
 
   async startSurvey() {
     try {
-      const res = await fetch('/api/respondents', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ name: null })
-      });
-      const data = await res.json();
-      this.respondentId = data.id;
+      const saved = this.loadProgress();
+      if (saved && saved.respondentId && Object.keys(saved.answers).length > 0) {
+        this.pendingSave = saved;
+        document.getElementById('resume-banner').style.display = 'block';
+        return;
+      }
+      await this.beginFreshSurvey();
+    } catch (err) {
+      alert('Failed to connect. Please try again.');
+    }
+  },
 
+  async resumeSurvey() {
+    document.getElementById('resume-banner').style.display = 'none';
+    try {
+      this.respondentId = this.pendingSave.respondentId;
+      this.answers = this.pendingSave.answers;
+      this.pendingSave = null;
       const itemsRes = await fetch('/api/items');
       this.items = await itemsRes.json();
-
       this.renderSurvey();
       this.showScreen('survey');
     } catch (err) {
       alert('Failed to connect. Please try again.');
     }
+  },
+
+  async startFresh() {
+    document.getElementById('resume-banner').style.display = 'none';
+    this.clearProgress();
+    this.pendingSave = null;
+    try {
+      await this.beginFreshSurvey();
+    } catch (err) {
+      alert('Failed to connect. Please try again.');
+    }
+  },
+
+  async beginFreshSurvey() {
+    const res = await fetch('/api/respondents', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ name: null })
+    });
+    const data = await res.json();
+    this.respondentId = data.id;
+    const itemsRes = await fetch('/api/items');
+    this.items = await itemsRes.json();
+    this.renderSurvey();
+    this.showScreen('survey');
+  },
+
+  saveProgress() {
+    try {
+      localStorage.setItem('kanbanrank-progress', JSON.stringify({
+        respondentId: this.respondentId,
+        answers: this.answers
+      }));
+    } catch (e) {}
+  },
+
+  loadProgress() {
+    try {
+      const data = localStorage.getItem('kanbanrank-progress');
+      return data ? JSON.parse(data) : null;
+    } catch (e) { return null; }
+  },
+
+  clearProgress() {
+    try { localStorage.removeItem('kanbanrank-progress'); } catch (e) {}
   },
 
   renderSurvey() {
@@ -81,6 +135,7 @@ const app = {
             if (!this.answers[item.id]) this.answers[item.id] = {};
             this.answers[item.id].importance = i;
             this.updateProgress();
+            this.saveProgress();
           };
           dots.appendChild(dot);
         }
@@ -99,6 +154,7 @@ const app = {
         textarea.oninput = () => {
           if (!this.answers[item.id]) this.answers[item.id] = {};
           this.answers[item.id].definitionOfDone = textarea.value;
+          this.saveProgress();
         };
         card.appendChild(textarea);
 
@@ -115,6 +171,7 @@ const app = {
         cb.onchange = () => {
           if (!this.answers[item.id]) this.answers[item.id] = {};
           this.answers[item.id].idk = cb.checked;
+          this.saveProgress();
           textarea.disabled = cb.checked;
           textarea.classList.toggle('disabled', cb.checked);
         };
@@ -177,6 +234,7 @@ const app = {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ responses, name: name || null })
       });
+      this.clearProgress();
       this.showScreen('done');
       this.launchConfetti();
     } catch (err) {

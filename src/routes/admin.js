@@ -211,6 +211,15 @@ router.get('/analysis', (req, res) => {
   });
 });
 
+// Timeline - list of submissions with timestamps
+router.get('/timeline', (req, res) => {
+  const db = getDb();
+  const submissions = db.prepare(
+    'SELECT name, completed_at FROM respondents WHERE completed_at IS NOT NULL ORDER BY completed_at DESC'
+  ).all();
+  res.json(submissions);
+});
+
 // Clear all entries
 router.post('/clear-all', (req, res) => {
   const db = getDb();

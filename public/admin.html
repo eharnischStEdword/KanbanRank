@@ -18,6 +18,9 @@
         <span id="respondent-count" style="font-size: 0.9rem; color: var(--text-light);"></span>
       </div>
       <div style="display: flex; gap: 0.5rem;">
+        <button class="btn btn-secondary admin-btn" id="refresh-btn" onclick="admin.refreshDashboard()">
+          Refresh
+        </button>
         <button class="btn btn-primary admin-btn" onclick="admin.generateAll()">
           Generate All Consensus
         </button>
@@ -31,6 +34,7 @@
     <div class="admin-tabs">
       <button class="admin-tab active" onclick="admin.switchTab('rankings')">Rankings</button>
       <button class="admin-tab" onclick="admin.switchTab('analysis')">Analysis</button>
+      <button class="admin-tab" onclick="admin.switchTab('timeline')">Timeline</button>
     </div>
 
     <div id="tab-rankings">
@@ -40,6 +44,10 @@
 
     <div id="tab-analysis" style="display:none;">
       <div id="analysis-content"></div>
+    </div>
+
+    <div id="tab-timeline" style="display:none;">
+      <div id="timeline-content"></div>
     </div>
   </div>
 
