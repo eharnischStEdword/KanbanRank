@@ -140,10 +140,19 @@ const admin = {
       data.outliers.forEach(function(o) { html += '<li>' + admin.esc(o) + '</li>'; });
       html += '</ul></div>';
     }
+    if (data.gaps) {
+      html += '<div class="consensus-gaps"><strong>Needs More Input:</strong> ' + this.esc(data.gaps) + '</div>';
+    }
     var conf = data.confidence;
     var confDisplay = typeof conf === 'number' ? conf + '%' : this.esc(String(conf));
     var confColor = typeof conf === 'number' ? this.confidenceColor(conf) : 'var(--primary)';
-    html += '<div class="consensus-confidence" style="color:' + confColor + '">Confidence: ' + confDisplay + '</div>';
+    html += '<div class="consensus-scores">';
+    html += '<span class="consensus-confidence" style="color:' + confColor + '">Team Alignment: ' + confDisplay + '</span>';
+    if (typeof data.dodScore === 'number') {
+      var dodColor = this.confidenceColor(data.dodScore);
+      html += '<span class="consensus-dod-score" style="color:' + dodColor + '">DoD Quality: ' + data.dodScore + '%</span>';
+    }
+    html += '</div>';
     html += '</div>';
     return html;
   },

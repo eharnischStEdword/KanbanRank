@@ -291,7 +291,7 @@ router.get('/export/rankings', (req, res) => {
     ORDER BY avg_importance DESC, i.title ASC
   `).all();
 
-  const rows = [['Rank', 'Title', 'Category', 'Avg Importance', 'Response Count', 'Consensus DoD', 'Confidence %', 'Common Themes', 'Disagreements', 'Outliers']];
+  const rows = [['Rank', 'Title', 'Category', 'Avg Importance', 'Response Count', 'Consensus DoD', 'Confidence %', 'DoD Quality %', 'Gaps', 'Common Themes', 'Disagreements', 'Outliers']];
 
   items.forEach((item, idx) => {
     const cached = db.prepare(
@@ -308,6 +308,8 @@ router.get('/export/rankings', (req, res) => {
       item.response_count,
       csvEscape(consensus ? consensus.consensusDefinition : ''),
       consensus && typeof consensus.confidence === 'number' ? consensus.confidence + '%' : '',
+      consensus && typeof consensus.dodScore === 'number' ? consensus.dodScore + '%' : '',
+      csvEscape(consensus && consensus.gaps ? consensus.gaps : ''),
       csvEscape(consensus && consensus.commonThemes ? consensus.commonThemes.join('; ') : ''),
       csvEscape(consensus && consensus.disagreements ? consensus.disagreements.join('; ') : ''),
       csvEscape(consensus && consensus.outliers ? consensus.outliers.join('; ') : '')
@@ -370,7 +372,7 @@ router.get('/export/board-update', (req, res) => {
     'SELECT COUNT(*) as c FROM respondents WHERE completed_at IS NOT NULL'
   ).get().c;
 
-  const rows = [['Category', 'Item', 'Avg Importance', 'Responses', 'Total Respondents', 'Consensus Definition of Done', 'Confidence %']];
+  const rows = [['Category', 'Item', 'Avg Importance', 'Responses', 'Total Respondents', 'Consensus Definition of Done', 'Confidence %', 'DoD Quality %', 'Gaps / Needs More Input']];
   items.forEach(item => {
     const cached = db.prepare(
       "SELECT content FROM ai_results WHERE item_id = ? AND result_type = 'consensus' ORDER BY created_at DESC LIMIT 1"
@@ -385,7 +387,9 @@ router.get('/export/board-update', (req, res) => {
       item.response_count,
       totalRespondents,
       csvEscape(consensus ? consensus.consensusDefinition : 'Not generated'),
-      consensus && typeof consensus.confidence === 'number' ? consensus.confidence + '%' : ''
+      consensus && typeof consensus.confidence === 'number' ? consensus.confidence + '%' : '',
+      consensus && typeof consensus.dodScore === 'number' ? consensus.dodScore + '%' : '',
+      csvEscape(consensus && consensus.gaps ? consensus.gaps : '')
     ]);
   });
 

@@ -554,11 +554,29 @@ body {
   margin-bottom: 0.15rem;
 }
 
-.consensus-confidence {
+.consensus-gaps {
+  font-size: 0.82rem;
+  color: #B45309;
+  background: #FEF3C7;
+  border: 1px solid #FDE68A;
+  border-radius: var(--radius);
+  padding: 0.6rem 0.8rem;
+  margin-top: 0.75rem;
+  line-height: 1.5;
+}
+
+.consensus-scores {
+  display: flex;
+  gap: 1.5rem;
+  margin-top: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.consensus-confidence,
+.consensus-dod-score {
   font-size: 0.8rem;
   font-weight: 500;
   color: var(--primary);
-  margin-top: 0.5rem;
 }
 
 /* === Individual Responses === */

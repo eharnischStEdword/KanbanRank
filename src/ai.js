@@ -8,34 +8,45 @@ const CONSENSUS_SYSTEM_PROMPT = `You are helping a parish team synthesize their 
 
 You will receive a kanban item title and multiple team members' descriptions of what "done" means for that item.
 
-CRITICAL: Follow Kanban Definition of Done best practices. The consensus DoD must be:
-- A checklist of OBSERVABLE, VERIFIABLE acceptance criteria — not aspirational statements
-- Each criterion must be something a team member can objectively confirm as done or not done
-- Use concrete, measurable language: specific numbers, frequencies, artifacts, or observable behaviors
-- Avoid vague/philosophical language like "strong relationships," "visible harmony," "actively demonstrate care"
-- Instead, translate those sentiments into checkable items (e.g., "Monthly community event held with 50%+ attendance" instead of "strong community bonds")
+ABSOLUTE RULE — NO INVENTING:
+- ONLY use what respondents actually wrote. Every checklist item MUST be directly traceable to a specific respondent's words.
+- Do NOT add specific numbers, percentages, or metrics that no respondent mentioned. If a respondent said "regular donations" do NOT turn that into "80% participation rate" — that number came from you, not them.
+- Do NOT extrapolate or expand. If a respondent said "tithing," your checklist item is about tithing — not about "stewardship campaigns" or "donor retention" unless someone actually said those words.
+- If responses are thin or few, produce a SHORT checklist and note that more input is needed. A 2-item DoD from real data is better than a 10-item DoD where 8 are invented.
+
+REWORDING RULES:
+- You MAY restructure a respondent's words into checklist format for clarity
+- You MAY combine two respondents who said essentially the same thing
+- You MUST NOT add substance, metrics, or specifics that aren't in the source data
+- If a respondent's words are vague (e.g., "strong community"), keep them vague in the checklist and flag in "gaps" that the team needs to define measurable criteria
+- Use "[needs metric]" placeholder where a number would make the criterion SMART but no respondent provided one
 
 Your job:
-1. Identify common themes across all responses
-2. Detect OUTLIER responses — if most respondents agree on a direction but one or two are significantly different, treat those as outliers. The consensus should reflect the majority view.
-3. Note any significant disagreements or outlier perspectives separately
-4. Produce a Kanban-style "Consensus Definition of Done" as a bullet-point checklist of verifiable criteria, weighted toward the majority view
-5. Assign a confidence score from 0-100 reflecting how aligned the team is (100 = perfect agreement, 50 = moderate disagreement, below 30 = major splits)
+1. Identify common themes across responses
+2. Detect outlier responses — note them separately
+3. Produce a consensus DoD checklist using ONLY what respondents actually said (reworded for clarity/checkability where appropriate)
+4. Assign a confidence score (0-100) for team alignment
+5. Assign a dodScore (0-100) rating how well the RESULTING DoD meets Kanban best practices:
+   - 90-100: All criteria are specific, measurable, and verifiable
+   - 60-89: Most criteria are checkable but some are vague
+   - 30-59: Mix of checkable and aspirational criteria
+   - 0-29: Mostly vague/philosophical, not actionable
+6. If the DoD is incomplete or needs more team input, say so in "gaps"
 
 Format your response as JSON:
 {
   "commonThemes": ["Theme 1", "Theme 2"],
   "disagreements": ["Disagreement 1"] or [],
   "outliers": ["Person X had a notably different view: ..."] or [],
-  "consensusDefinition": "A bullet-point checklist of observable, verifiable criteria that define 'done' for this item. Each bullet should be something you can check off.",
-  "confidence": 85
+  "consensusDefinition": "Bullet-point checklist derived ONLY from respondent data",
+  "confidence": 85,
+  "dodScore": 45,
+  "gaps": "What's missing or needs team discussion to complete this DoD" or null
 }
 
-GOOD example consensus: "- At least 2 parish social events per quarter with 60%+ member attendance\\n- Conflict resolution process documented and communicated to all members\\n- New member welcome program active with assigned buddy within first 2 weeks\\n- Annual satisfaction survey shows 80%+ positive response rate on community questions"
+IMPORTANT: The "gaps" field should be null only if the DoD is genuinely complete and meets best practices. Otherwise, be honest about what's missing — e.g., "Only 3 responses received. Criteria lack specific metrics. Team should discuss measurable targets for X and Y."
 
-BAD example consensus: "Parishioners have developed strong relationships characterized by mutual respect and love, with visible harmony and minimal conflicts."
-
-The DoD goes on a physical kanban board in an office. Make it practical and checkable.`;
+The DoD goes on a physical kanban board in an office. Make it practical and checkable — but ONLY from real data.`;
 
 async function generateConsensus(itemTitle, responses) {
   const formatted = responses.map((r, i) => {
