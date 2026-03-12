@@ -264,6 +264,137 @@ router.get('/timeline', (req, res) => {
   res.json(submissions);
 });
 
+// === Export Endpoints ===
+
+function csvEscape(val) {
+  if (val == null) return '';
+  const str = String(val);
+  if (str.includes(',') || str.includes('"') || str.includes('\n') || str.includes('\r')) {
+    return '"' + str.replace(/"/g, '""') + '"';
+  }
+  return str;
+}
+
+// Export rankings + consensus as CSV
+router.get('/export/rankings', (req, res) => {
+  const db = getDb();
+  const items = db.prepare(`
+    SELECT
+      i.id, i.title, i.category,
+      COALESCE(AVG(r.importance), 0) as avg_importance,
+      COUNT(r.id) as response_count
+    FROM items i
+    LEFT JOIN responses r ON i.id = r.item_id
+    LEFT JOIN respondents resp ON r.respondent_id = resp.id
+    WHERE resp.completed_at IS NOT NULL OR r.id IS NULL
+    GROUP BY i.id
+    ORDER BY avg_importance DESC, i.title ASC
+  `).all();
+
+  const rows = [['Rank', 'Title', 'Category', 'Avg Importance', 'Response Count', 'Consensus DoD', 'Confidence %', 'Common Themes', 'Disagreements', 'Outliers']];
+
+  items.forEach((item, idx) => {
+    const cached = db.prepare(
+      "SELECT content FROM ai_results WHERE item_id = ? AND result_type = 'consensus' ORDER BY created_at DESC LIMIT 1"
+    ).get(item.id);
+    let consensus = null;
+    if (cached) { try { consensus = JSON.parse(cached.content); } catch (e) {} }
+
+    rows.push([
+      idx + 1,
+      csvEscape(item.title),
+      csvEscape(item.category),
+      item.avg_importance ? item.avg_importance.toFixed(2) : '0',
+      item.response_count,
+      csvEscape(consensus ? consensus.consensusDefinition : ''),
+      consensus && typeof consensus.confidence === 'number' ? consensus.confidence + '%' : '',
+      csvEscape(consensus && consensus.commonThemes ? consensus.commonThemes.join('; ') : ''),
+      csvEscape(consensus && consensus.disagreements ? consensus.disagreements.join('; ') : ''),
+      csvEscape(consensus && consensus.outliers ? consensus.outliers.join('; ') : '')
+    ]);
+  });
+
+  const csv = rows.map(r => r.join(',')).join('\n');
+  res.setHeader('Content-Type', 'text/csv');
+  res.setHeader('Content-Disposition', 'attachment; filename="kanbanrank-rankings.csv"');
+  res.send(csv);
+});
+
+// Export all individual responses as CSV
+router.get('/export/responses', (req, res) => {
+  const db = getDb();
+  const responses = db.prepare(`
+    SELECT resp.name, i.title, i.category, r.importance, r.definition_of_done, resp.completed_at
+    FROM responses r
+    JOIN items i ON r.item_id = i.id
+    JOIN respondents resp ON r.respondent_id = resp.id
+    WHERE resp.completed_at IS NOT NULL
+    ORDER BY resp.name, i.category, i.title
+  `).all();
+
+  const rows = [['Respondent', 'Item', 'Category', 'Importance', 'Definition of Done', 'Submitted']];
+  responses.forEach(r => {
+    rows.push([
+      csvEscape(r.name || 'Anonymous'),
+      csvEscape(r.title),
+      csvEscape(r.category),
+      r.importance,
+      csvEscape(r.definition_of_done || ''),
+      r.completed_at || ''
+    ]);
+  });
+
+  const csv = rows.map(r => r.join(',')).join('\n');
+  res.setHeader('Content-Type', 'text/csv');
+  res.setHeader('Content-Disposition', 'attachment; filename="kanbanrank-responses.csv"');
+  res.send(csv);
+});
+
+// Export board update sheet — grouped by category, sorted by priority
+router.get('/export/board-update', (req, res) => {
+  const db = getDb();
+  const items = db.prepare(`
+    SELECT
+      i.id, i.title, i.category,
+      COALESCE(AVG(r.importance), 0) as avg_importance,
+      COUNT(r.id) as response_count
+    FROM items i
+    LEFT JOIN responses r ON i.id = r.item_id
+    LEFT JOIN respondents resp ON r.respondent_id = resp.id
+    WHERE resp.completed_at IS NOT NULL OR r.id IS NULL
+    GROUP BY i.id
+    ORDER BY i.category, avg_importance DESC
+  `).all();
+
+  const totalRespondents = db.prepare(
+    'SELECT COUNT(*) as c FROM respondents WHERE completed_at IS NOT NULL'
+  ).get().c;
+
+  const rows = [['Category', 'Item', 'Avg Importance', 'Responses', 'Total Respondents', 'Consensus Definition of Done', 'Confidence %']];
+  items.forEach(item => {
+    const cached = db.prepare(
+      "SELECT content FROM ai_results WHERE item_id = ? AND result_type = 'consensus' ORDER BY created_at DESC LIMIT 1"
+    ).get(item.id);
+    let consensus = null;
+    if (cached) { try { consensus = JSON.parse(cached.content); } catch (e) {} }
+
+    rows.push([
+      csvEscape(item.category),
+      csvEscape(item.title),
+      item.avg_importance ? item.avg_importance.toFixed(2) : '0',
+      item.response_count,
+      totalRespondents,
+      csvEscape(consensus ? consensus.consensusDefinition : 'Not generated'),
+      consensus && typeof consensus.confidence === 'number' ? consensus.confidence + '%' : ''
+    ]);
+  });
+
+  const csv = rows.map(r => r.join(',')).join('\n');
+  res.setHeader('Content-Type', 'text/csv');
+  res.setHeader('Content-Disposition', 'attachment; filename="kanbanrank-board-update.csv"');
+  res.send(csv);
+});
+
 // Clear all entries
 router.post('/clear-all', (req, res) => {
   const db = getDb();

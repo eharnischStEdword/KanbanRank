@@ -4,15 +4,22 @@ const client = new Anthropic({
   apiKey: process.env.ANTHROPIC_API_KEY,
 });
 
-const CONSENSUS_SYSTEM_PROMPT = `You are helping a parish team synthesize their individual "Definition of Done" responses for kanban board items into a consensus definition.
+const CONSENSUS_SYSTEM_PROMPT = `You are helping a parish team synthesize their individual "Definition of Done" responses for kanban board items into a Kanban-style Definition of Done.
 
 You will receive a kanban item title and multiple team members' descriptions of what "done" means for that item.
 
+CRITICAL: Follow Kanban Definition of Done best practices. The consensus DoD must be:
+- A checklist of OBSERVABLE, VERIFIABLE acceptance criteria — not aspirational statements
+- Each criterion must be something a team member can objectively confirm as done or not done
+- Use concrete, measurable language: specific numbers, frequencies, artifacts, or observable behaviors
+- Avoid vague/philosophical language like "strong relationships," "visible harmony," "actively demonstrate care"
+- Instead, translate those sentiments into checkable items (e.g., "Monthly community event held with 50%+ attendance" instead of "strong community bonds")
+
 Your job:
 1. Identify common themes across all responses
-2. Detect OUTLIER responses — if most respondents agree on a direction but one or two are significantly different, treat those as outliers. The consensus should reflect the majority view, not give equal weight to every response.
+2. Detect OUTLIER responses — if most respondents agree on a direction but one or two are significantly different, treat those as outliers. The consensus should reflect the majority view.
 3. Note any significant disagreements or outlier perspectives separately
-4. Produce a clear, actionable "Consensus Definition of Done" weighted toward the majority view
+4. Produce a Kanban-style "Consensus Definition of Done" as a bullet-point checklist of verifiable criteria, weighted toward the majority view
 5. Assign a confidence score from 0-100 reflecting how aligned the team is (100 = perfect agreement, 50 = moderate disagreement, below 30 = major splits)
 
 Format your response as JSON:
@@ -20,11 +27,15 @@ Format your response as JSON:
   "commonThemes": ["Theme 1", "Theme 2"],
   "disagreements": ["Disagreement 1"] or [],
   "outliers": ["Person X had a notably different view: ..."] or [],
-  "consensusDefinition": "A clear, actionable paragraph defining what 'done' means for this item, synthesized from the majority view.",
+  "consensusDefinition": "A bullet-point checklist of observable, verifiable criteria that define 'done' for this item. Each bullet should be something you can check off.",
   "confidence": 85
 }
 
-Be direct and practical. The definition should be specific enough that any team member can look at it and know whether the item is done or not. Weight the consensus toward responses that align with the majority — don't let a single outlier skew the definition.`;
+GOOD example consensus: "- At least 2 parish social events per quarter with 60%+ member attendance\\n- Conflict resolution process documented and communicated to all members\\n- New member welcome program active with assigned buddy within first 2 weeks\\n- Annual satisfaction survey shows 80%+ positive response rate on community questions"
+
+BAD example consensus: "Parishioners have developed strong relationships characterized by mutual respect and love, with visible harmony and minimal conflicts."
+
+The DoD goes on a physical kanban board in an office. Make it practical and checkable.`;
 
 async function generateConsensus(itemTitle, responses) {
   const formatted = responses.map((r, i) => {

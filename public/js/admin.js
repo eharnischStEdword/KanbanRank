@@ -4,9 +4,27 @@ const admin = {
       const res = await fetch('/admin/results');
       const data = await res.json();
       this.renderRankedList(data.items, data.totalRespondents);
+      // Auto-expand items that have consensus
+      for (const item of data.items) {
+        this.autoExpandIfConsensus(item.id);
+      }
     } catch (err) {
       document.getElementById('ranked-list').innerHTML = '<p style="color:#c00">Failed to load.</p>';
     }
+  },
+
+  async autoExpandIfConsensus(itemId) {
+    try {
+      const res = await fetch('/admin/items/' + itemId + '/consensus');
+      const consensus = await res.json();
+      if (consensus) {
+        const detail = document.getElementById('detail-' + itemId);
+        if (detail) {
+          detail.style.display = 'block';
+          await this.loadItemDetail(itemId);
+        }
+      }
+    } catch (e) {}
   },
 
   renderRankedList(items, totalRespondents) {
@@ -107,7 +125,7 @@ const admin = {
   renderConsensus(data) {
     let html = '<div class="consensus-box">';
     html += '<h4>Consensus Definition of Done</h4>';
-    html += '<p class="consensus-definition">' + this.esc(data.consensusDefinition) + '</p>';
+    html += '<div class="consensus-definition">' + this.formatDoD(data.consensusDefinition) + '</div>';
     if (data.commonThemes && data.commonThemes.length) {
       html += '<div class="consensus-themes"><strong>Common Themes:</strong> ' +
         data.commonThemes.map(t => this.esc(t)).join(', ') + '</div>';
@@ -123,8 +141,8 @@ const admin = {
       html += '</ul></div>';
     }
     var conf = data.confidence;
-    var confDisplay = typeof conf === 'number' ? conf + '/100' : this.esc(String(conf));
-    var confColor = typeof conf === 'number' ? this.scoreColor(conf, 100) : 'var(--primary)';
+    var confDisplay = typeof conf === 'number' ? conf + '%' : this.esc(String(conf));
+    var confColor = typeof conf === 'number' ? this.confidenceColor(conf) : 'var(--primary)';
     html += '<div class="consensus-confidence" style="color:' + confColor + '">Confidence: ' + confDisplay + '</div>';
     html += '</div>';
     return html;
@@ -558,6 +576,33 @@ const admin = {
     return 'rgb(' + r + ',' + g + ',' + b + ')';
   },
 
+  formatDoD(text) {
+    if (!text) return '';
+    var escaped = this.esc(text);
+    // If it has bullet points (- or *), render as a list
+    var lines = escaped.split(/\n/).filter(function(l) { return l.trim(); });
+    var hasBullets = lines.some(function(l) { return /^\s*[-*]\s/.test(l); });
+    if (hasBullets) {
+      var items = lines.map(function(l) {
+        return '<li>' + l.replace(/^\s*[-*]\s*/, '') + '</li>';
+      }).join('');
+      return '<ul class="dod-checklist">' + items + '</ul>';
+    }
+    return '<p>' + escaped + '</p>';
+  },
+
+  toggleExportMenu() {
+    var menu = document.getElementById('export-menu');
+    menu.style.display = menu.style.display === 'none' ? 'block' : 'none';
+  },
+
+  confidenceColor(val) {
+    if (val >= 80) return '#15803D';  // dark green
+    if (val >= 60) return '#CA8A04';  // dark yellow/amber
+    if (val >= 40) return '#C2410C';  // dark orange
+    return '#B91C1C';                 // dark red
+  },
+
   esc(str) {
     if (!str) return '';
     const d = document.createElement('div');
@@ -565,5 +610,15 @@ const admin = {
     return d.innerHTML;
   }
 };
+
+// Close export menu when clicking outside
+document.addEventListener('click', function(e) {
+  var menu = document.getElementById('export-menu');
+  if (menu && menu.style.display !== 'none') {
+    if (!e.target.closest('#export-menu') && !e.target.closest('[onclick*="toggleExportMenu"]')) {
+      menu.style.display = 'none';
+    }
+  }
+});
 
 document.addEventListener('DOMContentLoaded', () => admin.loadDashboard());

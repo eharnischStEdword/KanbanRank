@@ -922,6 +922,35 @@ body {
   text-align: left;
 }
 
+/* === DoD Checklist (bullet points from AI) === */
+.dod-checklist {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.dod-checklist li {
+  position: relative;
+  padding-left: 1.5rem;
+  margin-bottom: 0.4rem;
+  font-size: 0.9rem;
+  line-height: 1.5;
+  color: var(--text);
+}
+
+.dod-checklist li::before {
+  content: '\2610';
+  position: absolute;
+  left: 0;
+  color: var(--primary);
+  font-size: 1rem;
+}
+
+/* === Export menu hover === */
+#export-menu a:hover {
+  background: var(--bg);
+}
+
 /* === Respondent Rows (Responses Tab) === */
 .respondent-row {
   background: var(--bg-card);

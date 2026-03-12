@@ -17,13 +17,23 @@
       <div>
         <span id="respondent-count" style="font-size: 0.9rem; color: var(--text-light);"></span>
       </div>
-      <div style="display: flex; gap: 0.5rem;">
+      <div style="display: flex; gap: 0.5rem; flex-wrap: wrap;">
         <button class="btn btn-secondary admin-btn" id="refresh-btn" onclick="admin.refreshDashboard()">
           Refresh
         </button>
         <button class="btn btn-primary admin-btn" onclick="admin.generateAll()">
           Generate All Consensus
         </button>
+        <div style="position:relative;">
+          <button class="btn btn-secondary admin-btn" onclick="admin.toggleExportMenu()">
+            Export CSV
+          </button>
+          <div id="export-menu" style="display:none;position:absolute;right:0;top:100%;margin-top:4px;background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius);box-shadow:0 4px 12px rgba(0,0,0,0.1);z-index:20;min-width:200px;">
+            <a href="/admin/export/rankings" style="display:block;padding:0.6rem 1rem;font-size:0.85rem;color:var(--text);text-decoration:none;border-bottom:1px solid var(--border);">Rankings + Consensus</a>
+            <a href="/admin/export/responses" style="display:block;padding:0.6rem 1rem;font-size:0.85rem;color:var(--text);text-decoration:none;border-bottom:1px solid var(--border);">All Individual Responses</a>
+            <a href="/admin/export/board-update" style="display:block;padding:0.6rem 1rem;font-size:0.85rem;color:var(--text);text-decoration:none;">Board Update Sheet</a>
+          </div>
+        </div>
         <button class="btn btn-danger admin-btn" onclick="admin.clearAll()">
           Clear All Entries
         </button>
