@@ -151,8 +151,12 @@ const admin = {
   },
 
   async generateAll() {
+    // Switch to Rankings tab if not already there
+    this.switchTab('rankings');
+
     const detail = document.getElementById('admin-detail');
     detail.innerHTML = '<div class="results-loading"><div class="spinner"></div><p>Generating consensus for all items... This may take a minute.</p></div>';
+    detail.scrollIntoView({ behavior: 'smooth', block: 'center' });
 
     try {
       const res = await fetch('/admin/consensus/all', { method: 'POST' });
@@ -161,7 +165,7 @@ const admin = {
       html += '<p><strong>' + data.generated + '</strong> of ' + data.total + ' items got consensus.</p>';
       if (data.skipped > 0) {
         html += '<p style="color:var(--text-light); margin-top:0.5rem;">' + data.skipped +
-          ' items skipped — need at least 2 written Definitions of Done per item to generate consensus.</p>';
+          ' items skipped — need at least 1 written Definition of Done per item to generate consensus.</p>';
       }
       if (data.errors.length > 0) {
         html += '<p style="color:#c00; margin-top:0.5rem;">' + data.errors.length + ' items failed to generate.</p>';

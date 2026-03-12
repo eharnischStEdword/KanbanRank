@@ -55,8 +55,8 @@ router.post('/items/:itemId/consensus', async (req, res) => {
     ORDER BY r.importance DESC
   `).all(itemId);
 
-  if (responses.length < 2) {
-    return res.status(400).json({ error: 'Need at least 2 Definition of Done responses to generate consensus.' });
+  if (responses.length < 1) {
+    return res.status(400).json({ error: 'Need at least 1 Definition of Done response to generate consensus.' });
   }
 
   try {
@@ -100,7 +100,7 @@ router.post('/consensus/all', async (req, res) => {
       ORDER BY r.importance DESC
     `).all(item.id);
 
-    if (responses.length < 2) {
+    if (responses.length < 1) {
       skipped++;
       continue;
     }
